@@ -26,6 +26,16 @@ app.get("/urls", (req, res) => {
   res.render('urls_index', templateVars);
 })
 
+app.get("/urls/:shortURL", (req, res) => {
+  let shortURL = req.params.shortURL;
+  let longURL = urlDatabase[shortURL];
+  let templateVars = { 
+    shortURL,
+    longURL
+  };
+  res.render('urls_show', templateVars);
+})
+
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
