@@ -70,6 +70,17 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   
 })
 
+//edit a url
+app.post("/urls/:shortURL", (req, res) => {
+  const editedLongURL = req.body.longURL;
+  const shortURL = req.params.shortURL;
+
+  urlDatabase[shortURL] = editedLongURL;
+
+  res.redirect("/urls")
+  
+})
+
 app.get("/urls/:shortURL", (req, res) => {
   let shortURL = req.params.shortURL;
   let longURL = urlDatabase[shortURL];
