@@ -61,11 +61,15 @@ app.get("/urls/new", (req, res) => {
 //stores new URL
 app.post("/urls", (req, res) => {
   const longURL = req.body.longURL;
+  let shortURL = '';
   if (!Object.values(urlDatabase).includes(longURL)){
-    urlDatabase[generateRandomString()] = longURL;
+    shortURL = generateRandomString();
+    urlDatabase[shortURL] = longURL;
+  } else { 
+    shortURL = Object.keys(urlDatabase).find(key => urlDatabase[key] === longURL);
   }
+  res.redirect(`/urls/${shortURL}`);
   
-  res.send("ok");
 })
 
 app.get("/urls/:shortURL", (req, res) => {
