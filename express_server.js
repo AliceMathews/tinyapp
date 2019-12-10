@@ -58,8 +58,13 @@ app.get("/urls/new", (req, res) => {
   res.render('urls_new');
 });
 
+//stores new URL
 app.post("/urls", (req, res) => {
-  console.log(req.body);
+  const longURL = req.body.longURL;
+  if (!Object.values(urlDatabase).includes(longURL)){
+    urlDatabase[generateRandomString()] = longURL;
+  }
+  
   res.send("ok");
 })
 
