@@ -17,12 +17,19 @@
         <button type="submit" class="btn btn-primary" style="background-color: whitesmoke; border-color: grey; color: black">Logout</button>
     </form>
     <% } else { %>
-      <form class="form-inline" method="GET" action="/login">
+      <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+        <div class="navbar-nav" style="margin-left: auto">
+          <a class="nav-item nav-link" href="/login">Login</a>
+          <a class="nav-item nav-link" href="/register">Register</a>
+          
+        </div>
+      </div>
+      <!-- <form class="form-inline" method="GET" action="/login">
         <button type="submit" class="btn btn-primary" style="background-color: whitesmoke; border-color: grey; color: black">Login</button>
     </form>
     <form class="form-inline" method="GET" action="/register">
       <button type="submit" class="btn btn-primary" style="background-color: whitesmoke; border-color: grey; color: black">Register</button>
-  </form>
+  </form> -->
     <% } %>
   </nav>
 </header>
