@@ -37,7 +37,7 @@ function emailLookup(email) {
 
   for (const user in users) { 
     if (email === users[user].email) { 
-      return true;
+      return user;
     } 
   }
   return false;
@@ -60,6 +60,7 @@ app.get("/urls", (req, res) => {
     urls: urlDatabase,
     user: users[req.cookies["user_id"]]
   };
+  console.log(users)
   res.render('urls_index', templateVars);
 });
 
@@ -87,29 +88,48 @@ app.post("/register", (req, res) => {
     res.status(400).send({error: "Invalid email or password"});
   } else if (emailLookup(email)) {
     res.status(400).send({error: "User already exists"});
+  } else { 
+    const id = generateRandomString();
+  
+    users[id] = {};
+    users[id].id = id; 
+    users[id].email = email;
+    users[id].password = password;
+  
+    res.cookie("user_id", id);
+  
+    res.redirect("/urls");
   }
 
-  const id = generateRandomString();
-
-  users[id] = {};
-  users[id].id = id; 
-  users[id].email = email;
-  users[id].password = password;
-
-  res.cookie("user_id", id);
-
-  res.redirect("/urls");
 })
 
 //login
+app.get("/login", (req,res) => { 
+  let templateVars = { 
+    user: users[req.cookies["user_id"]]
+  };
+  res.render('login', templateVars);
+})
+
 app.post("/login", (req, res) => { 
-  res.cookie("username", req.body.username);
-  res.redirect("/urls");
+  const email = req.body.email; 
+  const password = req.body.password;
+  const user_id = emailLookup(email);
+  console.log(user_id)
+
+  if (!user_id) { 
+    res.status(403).send({error: "Invalid email"});
+  } else if (password !== users[user_id].password) { 
+    res.status(403).send({error: `Invalid password for: ${users[user_id].email}`});
+  } else { 
+    res.cookie("user_id", user_id);
+    res.redirect("/urls");
+  }
 })
 
 //logout
 app.post("/logout", (req, res) => { 
-  res.clearCookie("username");
+  res.clearCookie("user_id");
   res.redirect("/urls");
 })
 
