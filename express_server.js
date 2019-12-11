@@ -57,6 +57,14 @@ app.get("/urls/new", (req, res) => {
 });
 
 
+//Register
+app.get("/register", (req, res) => { 
+  let templateVars = { 
+    username: req.cookies["username"]
+  };
+  res.render('register', templateVars);
+})
+
 //login
 app.post("/login", (req, res) => { 
   res.cookie("username", req.body.username);
