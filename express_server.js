@@ -32,6 +32,16 @@ function generateRandomString() {
 
   return randomString;
 }
+
+function emailLookup(email) { 
+
+  for (const user in users) { 
+    if (email === users[user].email) { 
+      return true;
+    } 
+  }
+  return false;
+} 
   
 
 
@@ -48,14 +58,14 @@ const users = {
 app.get("/urls", (req, res) => {
   let templateVars = { 
     urls: urlDatabase,
-    username: req.cookies["username"]
+    user: users[req.cookies["user_id"]]
   };
   res.render('urls_index', templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
   let templateVars = { 
-    username: req.cookies["username"]
+    user: users[req.cookies["user_id"]]
   };
   res.render('urls_new', templateVars);
 });
@@ -64,7 +74,7 @@ app.get("/urls/new", (req, res) => {
 //Register
 app.get("/register", (req, res) => { 
   let templateVars = { 
-    username: req.cookies["username"]
+    user: users[req.cookies["user_id"]]
   };
   res.render('register', templateVars);
 })
@@ -72,6 +82,13 @@ app.get("/register", (req, res) => {
 app.post("/register", (req, res) => { 
   const email = req.body.email; 
   const password = req.body.password; 
+
+  if (email === '' || password === '') {
+    res.status(400).send({error: "Invalid email or password"});
+  } else if (emailLookup(email)) {
+    res.status(400).send({error: "User already exists"});
+  }
+
   const id = generateRandomString();
 
   users[id] = {};
@@ -142,7 +159,7 @@ app.get("/urls/:shortURL", (req, res) => {
   let templateVars = { 
     shortURL,
     longURL,
-    username: req.cookies["username"]
+    user: users[req.cookies["user_id"]]
   };
   res.render('urls_show', templateVars);
 })
