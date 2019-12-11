@@ -42,6 +42,18 @@ function emailLookup(email) {
   }
   return false;
 } 
+
+function urlsForUser(userID) { 
+  const filteredURLDatabase = {};
+
+  for (const shortURL in urlDatabase) { 
+    if (urlDatabase[shortURL].userID === userID) { 
+      filteredURLDatabase[shortURL] = urlDatabase[shortURL].longURL;
+    }
+  }
+
+  return filteredURLDatabase;
+}
   
 
 
@@ -61,8 +73,8 @@ const users = {
 
 app.get("/urls", (req, res) => {
   let templateVars = { 
-    urls: urlDatabase,
-    user: users[req.cookies["user_id"]]
+    urls: urlsForUser(req.cookies.user_id),
+    user: users[req.cookies.user_id]
   };
   // console.log(users)
   res.render('urls_index', templateVars);
@@ -71,7 +83,7 @@ app.get("/urls", (req, res) => {
 app.get("/urls/new", (req, res) => {
   if(req.cookies.user_id) { 
     let templateVars = { 
-      user: users[req.cookies["user_id"]]
+      user: users[req.cookies.user_id]
     };
     res.render('urls_new', templateVars);
   } else {
@@ -84,7 +96,7 @@ app.get("/urls/new", (req, res) => {
 //Register
 app.get("/register", (req, res) => { 
   let templateVars = { 
-    user: users[req.cookies["user_id"]]
+    user: users[req.cookies.user_id]
   };
   res.render('register', templateVars);
 })
@@ -100,10 +112,11 @@ app.post("/register", (req, res) => {
   } else { 
     const id = generateRandomString();
   
-    users[id] = {};
-    users[id].id = id; 
-    users[id].email = email;
-    users[id].password = password;
+    users[id] = {
+      id, 
+      email, 
+      password
+    };
   
     res.cookie("user_id", id);
   
@@ -115,7 +128,7 @@ app.post("/register", (req, res) => {
 //login
 app.get("/login", (req,res) => { 
   let templateVars = { 
-    user: users[req.cookies["user_id"]]
+    user: users[req.cookies.user_id]
   };
   res.render('login', templateVars);
 })
@@ -195,7 +208,7 @@ app.get("/urls/:shortURL", (req, res) => {
   let templateVars = { 
     shortURL,
     longURL,
-    user: users[req.cookies["user_id"]]
+    user: users[req.cookies.user_id]
   };
   res.render('urls_show', templateVars);
 })
