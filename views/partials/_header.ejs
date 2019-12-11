@@ -17,10 +17,12 @@
         <button type="submit" class="btn btn-primary" style="background-color: whitesmoke; border-color: grey; color: black">Logout</button>
     </form>
     <% } else { %>
-      <form class="form-inline" method="POST" action="/login">
-        <input class="form-control" type="text" name="username" placeholder="username" style="margin: 0 1em 0 0">
+      <form class="form-inline" method="GET" action="/login">
         <button type="submit" class="btn btn-primary" style="background-color: whitesmoke; border-color: grey; color: black">Login</button>
     </form>
+    <form class="form-inline" method="GET" action="/register">
+      <button type="submit" class="btn btn-primary" style="background-color: whitesmoke; border-color: grey; color: black">Register</button>
+  </form>
     <% } %>
   </nav>
 </header>
