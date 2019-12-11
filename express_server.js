@@ -71,7 +71,13 @@ app.post("/logout", (req, res) => {
 
 //stores new URL
 app.post("/urls", (req, res) => {
-  const longURL = req.body.longURL;
+  let longURL = req.body.longURL;
+
+  //check if user included 'http://' and add if not
+  if (!longURL.includes('http://')){ 
+    longURL = "http://" + longURL;
+  }
+
   let shortURL = '';
   if (!Object.values(urlDatabase).includes(longURL)){
     shortURL = generateRandomString();
