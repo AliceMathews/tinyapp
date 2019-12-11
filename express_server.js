@@ -40,6 +40,10 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+const users = { 
+
+};
+
 
 app.get("/urls", (req, res) => {
   let templateVars = { 
@@ -63,6 +67,21 @@ app.get("/register", (req, res) => {
     username: req.cookies["username"]
   };
   res.render('register', templateVars);
+})
+
+app.post("/register", (req, res) => { 
+  const email = req.body.email; 
+  const password = req.body.password; 
+  const id = generateRandomString();
+
+  users[id] = {};
+  users[id].id = id; 
+  users[id].email = email;
+  users[id].password = password;
+
+  res.cookie("user_id", id);
+
+  res.redirect("/urls");
 })
 
 //login
