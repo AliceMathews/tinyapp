@@ -46,12 +46,16 @@ function emailLookup(email) {
 
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  "b2xVn2": { longURL: "http://www.lighthouselabs.ca",
+              userID: "aJ48lW" },
+  "9sm5xK": { longURL: "http://www.google.com",
+              userID: "aJ48lW" }
 };
 
 const users = { 
-
+  aJ48lW: { id: "aJ48lW",
+            email: "alice_mathews@hotmail.co.uk", 
+            password: "banana" }
 };
 
 
@@ -60,15 +64,20 @@ app.get("/urls", (req, res) => {
     urls: urlDatabase,
     user: users[req.cookies["user_id"]]
   };
-  console.log(users)
+  // console.log(users)
   res.render('urls_index', templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
-  let templateVars = { 
-    user: users[req.cookies["user_id"]]
-  };
-  res.render('urls_new', templateVars);
+  if(req.cookies.user_id) { 
+    let templateVars = { 
+      user: users[req.cookies["user_id"]]
+    };
+    res.render('urls_new', templateVars);
+  } else {
+    res.redirect("/login");
+  }
+  
 });
 
 
@@ -115,7 +124,6 @@ app.post("/login", (req, res) => {
   const email = req.body.email; 
   const password = req.body.password;
   const user_id = emailLookup(email);
-  console.log(user_id)
 
   if (!user_id) { 
     res.status(403).send({error: "Invalid email"});
@@ -143,12 +151,20 @@ app.post("/urls", (req, res) => {
   }
 
   let shortURL = '';
-  if (!Object.values(urlDatabase).includes(longURL)){
-    shortURL = generateRandomString();
-    urlDatabase[shortURL] = longURL;
-  } else { 
-    shortURL = Object.keys(urlDatabase).find(key => urlDatabase[key] === longURL);
-  }
+  // if (!Object.values(urlDatabase).includes(longURL)){
+  //   shortURL = generateRandomString();
+  //   urlDatabase[shortURL].longURL = longURL;
+  // } else { 
+  //   shortURL = Object.keys(urlDatabase).find(key => urlDatabase[key] === longURL);
+  // }
+  
+  const userID = req.cookies.user_id;
+  shortURL = generateRandomString();
+  urlDatabase[shortURL] = {
+    longURL,
+    userID
+  };
+
   res.redirect(`/urls/${shortURL}`);
   
 })
@@ -167,7 +183,7 @@ app.post("/urls/:shortURL", (req, res) => {
   const editedLongURL = req.body.longURL;
   const shortURL = req.params.shortURL;
 
-  urlDatabase[shortURL] = editedLongURL;
+  urlDatabase[shortURL].longURL = editedLongURL;
 
   res.redirect("/urls")
   
@@ -175,7 +191,7 @@ app.post("/urls/:shortURL", (req, res) => {
 
 app.get("/urls/:shortURL", (req, res) => {
   let shortURL = req.params.shortURL;
-  let longURL = urlDatabase[shortURL];
+  let longURL = urlDatabase[shortURL].longURL;
   let templateVars = { 
     shortURL,
     longURL,
@@ -186,7 +202,7 @@ app.get("/urls/:shortURL", (req, res) => {
 
 //redirect to longURL
 app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL];
+  const longURL = urlDatabase[req.params.shortURL].longURL;
   // if (!longURL === undefined) {
   //   res.redirect(longURL);
   // } else { 
