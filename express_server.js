@@ -76,7 +76,7 @@ app.get("/urls", (req, res) => {
     urls: urlsForUser(req.cookies.user_id),
     user: users[req.cookies.user_id]
   };
-  // console.log(users)
+  
   res.render('urls_index', templateVars);
 });
 
@@ -219,7 +219,7 @@ app.get("/urls/:shortURL", (req, res) => {
     },
     user: users[req.cookies.user_id]
   };
-  console.log(templateVars)
+  
   res.render('urls_show', templateVars);
 })
 
