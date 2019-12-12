@@ -1,3 +1,8 @@
+/* =========================================================================================================
+ * SETUP
+ * =========================================================================================================  
+ */
+
 const { generateRandomString, getUserByEmail, urlsForUser, errorHandling } = require('./helpers.js');
 const { urlDatabase, users } = require('./database.js');
 
@@ -21,6 +26,15 @@ app.use(bodyParser.urlencoded({extended: true}));
 
 app.set('view engine', 'ejs');
 
+
+
+/* =========================================================================================================
+ * ROUTES
+ * =========================================================================================================  
+ */
+
+/* Homepage
+ * --------------------------------------------------------------------------------------------------------*/
 app.get('/', (req, res) => { 
   if(req.session.user_id) { 
     res.redirect('/urls');
@@ -49,8 +63,8 @@ app.get('/urls/new', (req, res) => {
   
 });
 
-
-//Register
+/* Register
+ * --------------------------------------------------------------------------------------------------------*/
 app.get('/register', (req, res) => { 
   if (req.session.user_id) {
     res.redirect('/urls')
@@ -89,7 +103,8 @@ app.post('/register', (req, res) => {
 
 })
 
-//login
+/* Login
+ * --------------------------------------------------------------------------------------------------------*/
 app.get('/login', (req,res) => { 
   if (req.session.user_id) {
     res.redirect('/urls')
@@ -119,13 +134,15 @@ app.post('/login', (req, res) => {
   }
 })
 
-//logout
+/* Logout
+ * --------------------------------------------------------------------------------------------------------*/
 app.post('/logout', (req, res) => { 
   delete req.session.user_id;
   res.redirect('/urls');
 })
 
-//stores new URL
+/* Store new URL
+ * --------------------------------------------------------------------------------------------------------*/
 app.post('/urls', (req, res) => {
   
   if(req.session.user_id) { 
@@ -158,7 +175,8 @@ app.post('/urls', (req, res) => {
   }
 })
 
-//deletes a url
+/* Delete URL
+ * --------------------------------------------------------------------------------------------------------*/
 app.post('/urls/:shortURL/delete', (req, res) => {
   const urlToDelete = req.params.shortURL;
 
@@ -176,7 +194,8 @@ app.post('/urls/:shortURL/delete', (req, res) => {
 
 })
 
-//edit a url
+/* Edit URL
+ * --------------------------------------------------------------------------------------------------------*/
 app.post('/urls/:shortURL', (req, res) => {
   const editedLongURL = req.body.longURL;
   const shortURL = req.params.shortURL;
@@ -193,6 +212,8 @@ app.post('/urls/:shortURL', (req, res) => {
   }
 })
 
+/* Show URL
+ * --------------------------------------------------------------------------------------------------------*/
 app.get('/urls/:shortURL', (req, res) => {
   let shortURL = req.params.shortURL;
   
@@ -222,7 +243,8 @@ app.get('/urls/:shortURL', (req, res) => {
   
 })
 
-//redirect to longURL
+/* Redirect to longURL
+ * --------------------------------------------------------------------------------------------------------*/
 app.get('/u/:shortURL', (req, res) => {
   if (urlDatabase[req.params.shortURL] === undefined) { 
     let templateVars = {
@@ -235,6 +257,10 @@ app.get('/u/:shortURL', (req, res) => {
     res.redirect(longURL);
   }
 })
+
+
+
+
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
