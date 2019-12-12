@@ -2,6 +2,8 @@ const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
 
+const bcrypt = require('bcrypt');
+
 const cookieParser = require('cookie-parser');
 app.use(cookieParser());
 
@@ -67,7 +69,7 @@ const urlDatabase = {
 const users = { 
   aJ48lW: { id: "aJ48lW",
             email: "alice_mathews@hotmail.co.uk", 
-            password: "banana" }
+            password: bcrypt.hashSync("banana", 10) }
 };
 
 
@@ -76,7 +78,7 @@ app.get("/urls", (req, res) => {
     urls: urlsForUser(req.cookies.user_id),
     user: users[req.cookies.user_id]
   };
-  
+  console.log(users)
   res.render('urls_index', templateVars);
 });
 
@@ -103,7 +105,7 @@ app.get("/register", (req, res) => {
 
 app.post("/register", (req, res) => { 
   const email = req.body.email; 
-  const password = req.body.password; 
+  const password = bcrypt.hashSync(req.body.password, 10);
 
   if (email === '' || password === '') {
     res.status(400).send({error: "Invalid email or password"});
@@ -139,8 +141,8 @@ app.post("/login", (req, res) => {
   const user_id = emailLookup(email);
 
   if (!user_id) { 
-    res.status(403).send({error: "Invalid email"});
-  } else if (password !== users[user_id].password) { 
+    res.status(403).send({error: `User: ${email} does not exist`});
+  } else if (!bcrypt.compareSync(password, users[user_id].password)) { 
     res.status(403).send({error: `Invalid password for: ${users[user_id].email}`});
   } else { 
     res.cookie("user_id", user_id);
