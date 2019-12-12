@@ -205,11 +205,17 @@ app.post("/urls/:shortURL", (req, res) => {
 app.get("/urls/:shortURL", (req, res) => {
   let shortURL = req.params.shortURL;
   let longURL = urlDatabase[shortURL].longURL;
+  let userID = urlDatabase[shortURL].userID;
+  
   let templateVars = { 
-    shortURL,
-    longURL,
+    URL: {
+      shortURL,
+      longURL,
+      userID
+    },
     user: users[req.cookies.user_id]
   };
+  console.log(templateVars)
   res.render('urls_show', templateVars);
 })
 
