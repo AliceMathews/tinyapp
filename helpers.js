@@ -1,5 +1,3 @@
-const { urlDatabase, users } = require('./database.js');
-
 function generateRandomString() { 
   let count = 0;
   let randomString = '';
@@ -23,7 +21,7 @@ function generateRandomString() {
   return randomString;
 }
 
-function emailLookup(email) { 
+function getUserByEmail(email, users) { 
 
   for (const user in users) { 
     if (email === users[user].email) { 
@@ -33,7 +31,7 @@ function emailLookup(email) {
   return false;
 } 
 
-function urlsForUser(userID) { 
+function urlsForUser(userID, urlDatabase) { 
   const filteredURLDatabase = {};
 
   for (const shortURL in urlDatabase) { 
@@ -45,7 +43,7 @@ function urlsForUser(userID) {
   return filteredURLDatabase;
 }
   
-function errorHandling(page, statusCode, error, req, res) { 
+function errorHandling(page, users, statusCode, error, req, res) { 
   res.status(statusCode) 
   let templateVars = { 
     user: users[req.session.user_id],
@@ -54,4 +52,4 @@ function errorHandling(page, statusCode, error, req, res) {
   res.render(page, templateVars);
 }
 
-module.exports = { generateRandomString, emailLookup, urlsForUser, errorHandling }
+module.exports = { generateRandomString, getUserByEmail, urlsForUser, errorHandling }
