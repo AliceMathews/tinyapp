@@ -52,4 +52,22 @@ function errorHandling(page, users, statusCode, error, req, res) {
   res.render(page, templateVars);
 }
 
-module.exports = { generateRandomString, getUserByEmail, urlsForUser, errorHandling }
+function uniqueVisitCount(visits){ 
+  let count = 0; 
+  let uniqueVisits = {};
+
+  console.log(visits)
+  for (const visit of visits) { 
+    console.log(visit)
+    if (!uniqueVisits[visit.visitorID]) { 
+      uniqueVisits[visit.visitorID] = 1;
+    } else { 
+      uniqueVisits[visit.visitorID] += 1;
+    }
+  }
+
+  count = Object.keys(uniqueVisits).length;
+  return count;
+}
+
+module.exports = { generateRandomString, getUserByEmail, urlsForUser, errorHandling, uniqueVisitCount }
