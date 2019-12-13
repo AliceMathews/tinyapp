@@ -19,6 +19,8 @@ Features analytics to show number of visits, number of unique visits and log inf
 - bcrypt
 - body-parser
 - cookie-session
+- cookie-parser
+- method-override
 
 ## Getting Started
 
