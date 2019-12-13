@@ -3,7 +3,7 @@
  * =========================================================================================================
  */
 
-const { generateRandomString, getUserByEmail, urlsForUser, errorHandling } = require('./helpers.js');
+const { generateRandomString, getUserByEmail, urlsForUser, errorHandling, uniqueVisitCount } = require('./helpers.js');
 const { urlDatabase, users } = require('./database.js');
 
 const express = require('express');
@@ -15,6 +15,9 @@ const bcrypt = require('bcrypt');
 const methodOverride = require('method-override');
 app.use(methodOverride('_method'));
 
+
+const cookieParser = require('cookie-parser');
+app.use(cookieParser()); 
 const cookieSession = require('cookie-session');
 app.use(cookieSession({
   name: 'session',
@@ -157,18 +160,12 @@ app.post('/urls', (req, res) => {
     }
 
     let shortURL = '';
-    // if (!Object.values(urlDatabase).includes(longURL)){
-    //   shortURL = generateRandomString();
-    //   urlDatabase[shortURL].longURL = longURL;
-    // } else {
-    //   shortURL = Object.keys(urlDatabase).find(key => urlDatabase[key] === longURL);
-    // }
-    
     const userID = req.session.user_id;
     shortURL = generateRandomString();
     urlDatabase[shortURL] = {
       longURL,
-      userID
+      userID,
+      visits: []
     };
 
     res.redirect(`/urls/${shortURL}`);
@@ -189,10 +186,7 @@ app.delete('/urls/:shortURL', (req, res) => {
   } else if (!req.session.user_id) {
     res.redirect('/login');
   } else if (urlDatabase[req.params.shortURL].userID !== req.session.user_id) {
-    let templateVars = {
-      user: users[req.session.user_id],
-      error: 'Not authorised to view this page'};
-    res.render('error', templateVars);
+    errorHandling('error', users, 401, 'Not authorised to view this page', req, res);
   }
 });
 
@@ -201,16 +195,14 @@ app.delete('/urls/:shortURL', (req, res) => {
 app.put('/urls/:shortURL', (req, res) => {
   const editedLongURL = req.body.longURL;
   const shortURL = req.params.shortURL;
+
   if (req.session.user_id && urlDatabase[shortURL].userID === req.session.user_id) {
     urlDatabase[shortURL].longURL = editedLongURL;
     res.redirect('/urls');
   } else if (!req.session.user_id) {
     res.redirect('/login');
   } else if (urlDatabase[shortURL].userID !== req.session.user_id) {
-    let templateVars = {
-      user: users[req.session.user_id],
-      error: 'Not authorised to view page'};
-    res.render('error', templateVars);
+    errorHandling('error', users, 401, 'Not authorised to view this page', req, res);
   }
 });
 
@@ -219,22 +211,21 @@ app.put('/urls/:shortURL', (req, res) => {
 app.get('/urls/:shortURL', (req, res) => {
   let shortURL = req.params.shortURL;
   
-  
   if (urlDatabase[shortURL] === undefined) {
-    let templateVars = {
-      user: users[req.session.user_id],
-      error: 'URL does not exist'
-    };
-    res.render('error', templateVars);
+    errorHandling('error', users, 404, 'URL does not exist', req, res);
   } else {
     let longURL = urlDatabase[shortURL].longURL;
     let userID = urlDatabase[shortURL].userID;
+    let visits = urlDatabase[shortURL].visits;
+    let uniqueVisits = uniqueVisitCount(visits);
 
     let templateVars = {
       URL: {
         shortURL,
         longURL,
-        userID
+        userID,
+        visits,
+        uniqueVisits
       },
       user: users[req.session.user_id]
     };
@@ -247,13 +238,37 @@ app.get('/urls/:shortURL', (req, res) => {
  * --------------------------------------------------------------------------------------------------------*/
 app.get('/u/:shortURL', (req, res) => {
   if (urlDatabase[req.params.shortURL] === undefined) {
-    let templateVars = {
-      user: users[req.session.user_id],
-      error: 'URL does not exist'
-    };
-    res.render('error', templateVars);
+    errorHandling('error', users, 404, 'URL does not exist', req, res);
+
   } else {
     const longURL = urlDatabase[req.params.shortURL].longURL;
+
+    //if user is logged in visitor id is set to user id
+    //if not check if this is an existing visitor, if not set a cookie containing visitor id,
+    let visitorID = '';
+
+    if (req.session.user_id) {
+      visitorID = req.session.user_id;
+    } else { 
+      if(!req.cookies.visitor_id){
+        visitorID = generateRandomString();
+        res.cookie('visitor_id', visitorID);
+      } else { 
+        visitorID = req.cookies.visitor_id;
+      }
+    }
+    
+    const today = new Date();
+    const date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+    const time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+    const dateTime = date+' '+time;
+    console.log(typeof dateTime)
+
+    const visitObj = { visitorID,
+                       dateTime };
+
+    urlDatabase[req.params.shortURL].visits.push(visitObj)
+   
     res.redirect(longURL);
   }
 });
