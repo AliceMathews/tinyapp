@@ -17,6 +17,8 @@
         <div class="card-body">
           <h5 class="card-title">TinyURL for: <%= URL.longURL %></h5>
           <p class="card-text">Short URL: <a href="/u/<%= URL.shortURL %>"><%= URL.shortURL %></a></p>
+          <p class="card-text">Number of visits: <%= URL.visits.length %></p>
+          <p class="card-text">Number of unique visits: <%= URL.uniqueVisits %></p>
         </div>
     </div>
   
@@ -37,6 +39,33 @@
           </div>
       <div class="card-footer text-muted"></div>
     </div>
+
+    <div class="card text-center">
+      <div class="card-header"></div>
+      
+      <div class="card-body">
+          <h4 class="card-title">Visit history</h4>
+          <p class="card-text">
+            <table class="table" style="width: 30%; margin: auto">
+              <thead>
+                <tr>
+                  <th scope="col">Time</th>
+                  <th scope="col">Visitor ID</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% for(let visit of URL.visits) { %>
+                  <tr>
+                    <td><%= visit.dateTime %></td>
+                    <td><%= visit.visitorID %></td>
+                  </tr>
+                <% } %>
+              </tbody>
+            </table>
+          </p>
+        </div>
+    <div class="card-footer text-muted"></div>
+  </div>
   <% } else { %>
     <div class="card text-center">
       <div class="card-header"></div>
